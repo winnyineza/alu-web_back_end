@@ -3,20 +3,31 @@
     obtain the HTML content of a particular URL and returns it """
 import redis
 import requests
-r = redis.Redis()
-count = 0
 
+# Initialize Redis connection
+r = redis.Redis()
 
 def get_page(url: str) -> str:
-    """ track how many times a particular URL was accessed in the key
-        "count:{url}"
-        and cache the result with an expiration time of 10 seconds """
-    r.set(f"cached:{url}", count)
-    resp = requests.get(url)
+    """ Track how many times a particular URL was accessed in the key
+        "count:{url}" and cache the result with an expiration time of 10 seconds """
+    
+    # Increment the access count for the URL
     r.incr(f"count:{url}")
-    r.setex(f"cached:{url}", 10, r.get(f"cached:{url}"))
+    
+    # Check if the URL is already cached
+    cached_response = r.get(f"cached:{url}")
+    
+    if cached_response:
+        # Return the cached response if it exists
+        return cached_response.decode('utf-8')
+
+    # If not cached, fetch the page
+    resp = requests.get(url)
+
+    # Cache the response with an expiration time of 10 seconds
+    r.setex(f"cached:{url}", 10, resp.text)
+
     return resp.text
 
-
 if __name__ == "__main__":
-    get_page('http://slowwly.robertomurray.co.uk')
+    print(get_page('http://slowwly.robertomurray.co.uk'))
