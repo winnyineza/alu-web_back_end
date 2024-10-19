@@ -16,7 +16,7 @@ def get_page(url: str) -> str:
     
     # Check if the URL is already cached
     cached_response = r.get(f"cached:{url}")
-    
+
     if cached_response:
         # Return the cached response if it exists
         return cached_response.decode('utf-8')
@@ -30,4 +30,5 @@ def get_page(url: str) -> str:
     return resp.text
 
 if __name__ == "__main__":
-    print(get_page('http://slowwly.robertomurray.co.uk'))
+    # Test the function with the provided URL
+    print(get_page('http://slowwly.robertomurray.co.uk/delay/10/url/http://example.com'))
